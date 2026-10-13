@@ -1,11 +1,24 @@
 import 'dotenv/config';
 import { REST, Routes } from 'discord.js';
 import { slashCommands } from './bot/commands';
-import { loadConfig, requireBotConfig } from './config';
+import { loadConfig } from './config';
 
 async function main(): Promise<void> {
   const config = loadConfig();
-  const { token, clientId } = requireBotConfig(config);
+
+  if (!config.DISCORD_TOKEN || !config.CLIENT_ID) {
+    console.warn('\n' + '='.repeat(60));
+    console.warn('⚠️ [deploy] AVISO: DISCORD_TOKEN o CLIENT_ID no configurados');
+    console.warn('='.repeat(60));
+    console.warn('Se omitirá el registro de comandos Slash por ahora.');
+    console.warn('La API continuará arrancando.');
+    console.warn('Configura DISCORD_TOKEN y CLIENT_ID en Railway para activar el bot.');
+    console.warn('='.repeat(60) + '\n');
+    return;
+  }
+
+  const token = config.DISCORD_TOKEN;
+  const clientId = config.CLIENT_ID;
 
   const rest = new REST({ version: '10' }).setToken(token);
   const body = slashCommands.map((command) => command.toJSON());
@@ -19,7 +32,7 @@ async function main(): Promise<void> {
     });
     console.log(`[deploy] ¡Comandos de servidor actualizados exitosamente!`);
   } else {
-    console.log(`[deploy] Registrando comandos globalmente (esto puede tardar hasta una hora en propagarse en Discord)...`);
+    console.log(`[deploy] Registrando comandos globalmente...`);
     await rest.put(Routes.applicationCommands(clientId), {
       body,
     });
