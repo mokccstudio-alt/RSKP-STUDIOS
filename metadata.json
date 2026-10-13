@@ -1,0 +1,8 @@
+{
+  "name": "Roblox Staff Service & Discord Bot System",
+  "description": "Sistema completo de gestión y control de turnos de servicio de staff para Roblox sincronizado con Discord y PostgreSQL.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
