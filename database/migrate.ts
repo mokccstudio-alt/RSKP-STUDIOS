@@ -1,9 +1,15 @@
 import 'dotenv/config';
 import { readdirSync, readFileSync } from 'fs';
 import path from 'path';
+import { fileURLToPath } from 'url';
 import { Client } from 'pg';
 
 const LOCK_ID = 7281940;
+
+// Soporte universal para ES Modules (Node.js/tsx) y CommonJS
+const currentDir = typeof __dirname !== 'undefined'
+  ? __dirname
+  : path.dirname(fileURLToPath(import.meta.url));
 
 function resolveDatabaseUrl(): string | undefined {
   if (process.env.DATABASE_URL?.trim()) return process.env.DATABASE_URL.trim();
@@ -79,7 +85,7 @@ async function main(): Promise<void> {
       'CREATE TABLE IF NOT EXISTS schema_migrations (version TEXT PRIMARY KEY, applied_at TIMESTAMPTZ NOT NULL DEFAULT now())',
     );
 
-    const dir = path.join(__dirname, 'migrations');
+    const dir = path.join(currentDir, 'migrations');
     const files = readdirSync(dir).filter((f) => /^\d+_.+\.sql$/.test(f)).sort();
 
     const { rows } = await client.query<{ version: string }>('SELECT version FROM schema_migrations');
